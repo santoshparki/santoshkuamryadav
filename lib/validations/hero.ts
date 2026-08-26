@@ -1,0 +1,25 @@
+import { z } from "zod";
+
+export const heroFormSchema = z.object({
+  fullName: z.string().optional(),
+  professionalTitle: z.string().optional(),
+  headline: z.string().optional(),
+  subheadline: z.string().optional(),
+  primaryButtonText: z.string().optional(),
+  primaryButtonUrl: z.string().optional(),
+  secondaryButtonText: z.string().optional(),
+  secondaryButtonUrl: z.string().optional(),
+  enableResumeDownload: z.boolean().default(false),
+  resumeButtonText: z.string().optional(),
+  showSocialLinks: z.boolean().default(false),
+  showAvailabilityBadge: z.boolean().default(false),
+  availabilityStatus: z.enum(["Available", "Busy", "Open to Work"]).optional(),
+  location: z.string().optional(),
+  yearsOfExperience: z.coerce.number().int().min(0).max(80).optional(),
+  heading: z.string().optional(),
+  subHeading: z.string().optional(),
+  ctaLabel: z.string().optional(),
+  ctaHref: z.string().optional(),
+  resumeButtonLabel: z.string().optional(),
+  resumeButtonHref: z.string().optional(),
+});

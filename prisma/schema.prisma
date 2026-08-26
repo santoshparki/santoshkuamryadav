@@ -1,0 +1,365 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email     String   @unique
+  fullName  String?
+  avatarUrl String?
+  role      UserRole @default(ADMIN)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  about         About?
+  blogs         Blog[]
+  siteSettings  SiteSetting?
+  socialLinks   SocialLink?
+
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+model About {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId             String   @unique @db.Uuid
+  shortBio           String?
+  longBio            String?
+  sectionTitle       String?
+  sectionSubtitle    String?
+  readMoreButtonText String?
+  showLessButtonText String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tags AboutTag[]
+
+  @@map("about")
+}
+
+model AboutTag {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  aboutId     String   @db.Uuid
+  label       String
+  icon        String?
+  displayOrder Int     @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  about About @relation(fields: [aboutId], references: [id], onDelete: Cascade)
+
+  @@map("about_tags")
+}
+
+model Hero {
+  id                    String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  fullName              String?
+  professionalTitle     String?
+  headline              String?
+  subheadline           String?
+  heading               String?
+  subHeading            String?
+  primaryButtonText     String?
+  primaryButtonUrl      String?
+  secondaryButtonText   String?
+  secondaryButtonUrl    String?
+  backgroundImageUrl    String?
+  heroImageUrl          String?
+  enableResumeDownload  Boolean  @default(false)
+  resumeUrl             String?
+  resumeFileName        String?
+  resumeFileType        String?
+  resumeButtonText      String?
+  showSocialLinks       Boolean  @default(false)
+  showAvailabilityBadge Boolean  @default(false)
+  availabilityStatus    String?
+  location              String?
+  yearsOfExperience     Int?
+  ctaLabel              String?
+  ctaHref               String?
+  resumeButtonLabel     String?
+  resumeButtonHref      String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@map("hero")
+}
+
+model SkillCategory {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String
+  slug        String   @unique
+  description String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  skills Skill[]
+
+  @@map("skill_categories")
+}
+
+model Skill {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  categoryId  String?  @db.Uuid
+  name        String
+  icon        String?
+  level       String?
+  percentage  Int?
+  description String?
+  sortOrder   Int      @default(0)
+  isFeatured  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  category SkillCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@map("skills")
+}
+
+model Project {
+  id                String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title             String
+  slug              String        @unique
+  shortDescription  String?
+  description       String?
+  category          String?
+  status            ProjectStatus @default(DRAFT)
+  featured          Boolean       @default(false)
+  githubUrl         String?
+  liveUrl           String?
+  technologies      String[]
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  images ProjectImage[]
+
+  @@map("projects")
+}
+
+enum ProjectStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model ProjectImage {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  projectId  String   @db.Uuid
+  url        String
+  caption    String?
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("project_images")
+}
+
+model Experience {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  company     String
+  position    String
+  location    String?
+  description String?
+  startDate   DateTime?
+  endDate     DateTime?
+  isCurrent   Boolean   @default(false)
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("experiences")
+}
+
+model Education {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  institution  String
+  degree       String
+  fieldOfStudy String?
+  location     String?
+  startDate    DateTime?
+  endDate      DateTime?
+  description  String?
+  sortOrder    Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("education")
+}
+
+model Certificate {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title             String
+  issuer            String
+  credentialUrl     String?
+  issueDate         DateTime?
+  description       String?
+  sortOrder         Int       @default(0)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@map("certificates")
+}
+
+model BlogCategory {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String
+  slug        String   @unique
+  description String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  blogs Blog[]
+
+  @@map("blog_categories")
+}
+
+model Blog {
+  id                String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title             String
+  slug              String      @unique
+  excerpt           String?
+  content           String?
+  status            BlogStatus  @default(DRAFT)
+  isFeatured        Boolean     @default(false)
+  categoryId        String?     @db.Uuid
+  coverImageUrl     String?
+  seoTitle          String?
+  seoDescription    String?
+  seoKeywords       String[]
+  publishedAt       DateTime?
+  authorId          String?     @db.Uuid
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  category BlogCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  author   User?         @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@map("blogs")
+}
+
+enum BlogStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model Testimonial {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clientName String
+  company    String?
+  photoUrl   String?
+  rating     Int?     @db.SmallInt
+  review     String
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("testimonials")
+}
+
+model Service {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title       String
+  description String?
+  icon        String?
+  features    String[]
+  displayOrder Int     @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("services")
+}
+
+model ContactMessage {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String
+  email       String
+  phone       String?
+  subject     String?
+  message     String
+  isRead      Boolean  @default(false)
+  isReplied   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("contact_messages")
+}
+
+model SocialLink {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String   @unique @db.Uuid
+  facebookUrl   String?
+  githubUrl     String?
+  linkedinUrl   String?
+  xUrl          String?
+  instagramUrl  String?
+  youtubeUrl    String?
+  portfolioUrl  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("social_links")
+}
+
+model SiteSetting {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId           String   @unique @db.Uuid
+  logoUrl          String?
+  faviconUrl       String?
+  siteTitle        String?
+  seoTitle         String?
+  seoDescription   String?
+  googleAnalytics  String?
+  metaTags         String[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("site_settings")
+}
+
+model HomepageSection {
+  key         String   @id
+  isVisible   Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  title       String?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("homepage_sections")
+}
+
+model Media {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  filename           String
+  originalFilename   String
+  filePath           String
+  fileSize           BigInt?
+  fileType           String?
+  mediaType          String?
+  folder             String?
+  isPublic           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("media")
+}
