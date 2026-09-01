@@ -14,20 +14,22 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
-  await requireAuthenticatedUser();
   const supabase = await createClient();
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
 
-  if (!session?.user) {
+  if (error || !user) {
     redirect("/login");
   }
+
+  await requireAuthenticatedUser();
 
   return (
     <DashboardShell>
       <div className="mx-auto max-w-7xl space-y-6">
-        <AdminHeader email={session.user.email ?? null} />
+        <AdminHeader email={user.email ?? null} />
         {children}
       </div>
     </DashboardShell>
