@@ -41,7 +41,10 @@ function isDatabaseConnectionError(error: unknown) {
   );
 }
 
-export async function withDbFallback<T>(operation: () => Promise<T>, fallback: T): Promise<T> {
+export async function withDbFallback<T>(
+  operation: () => Promise<T>,
+  fallback: NoInfer<T>
+): Promise<T> {
   let timeout: ReturnType<typeof setTimeout> | undefined;
 
   try {
